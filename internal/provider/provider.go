@@ -42,6 +42,9 @@ func New(version string) func() *schema.Provider {
 			DataSourcesMap: map[string]*schema.Resource{
 				"mattermost_team": dataSourceTeam(),
 			},
+			ResourcesMap: map[string]*schema.Resource{
+				"mattermost_team": resourceTeam(),
+			},
 		}
 
 		p.ConfigureContextFunc = configure(version, p)
