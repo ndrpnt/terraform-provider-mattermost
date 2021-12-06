@@ -19,6 +19,7 @@ func resourceTeam() *schema.Resource {
 		ReadContext:   resourceTeamRead,
 		UpdateContext: resourceTeamUpdate,
 		DeleteContext: resourceTeamDelete,
+		Importer:      &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -78,13 +79,18 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	team, _, err := c.GetTeam(id, "")
+	team, resp, err := c.GetTeam(id, "")
 	if err != nil {
 		return diag.Errorf("cannot get team by name: %v", err)
 	}
 
-	if team == nil {
-		return diag.Errorf("team with Id: %q not found", id)
+	if resp.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
+
+	if resp.StatusCode != 200 {
+		return diag.Errorf("invalid status returned %d", resp.StatusCode)
 	}
 
 	d.SetId(team.Id)

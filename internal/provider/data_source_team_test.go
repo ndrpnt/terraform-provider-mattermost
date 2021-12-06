@@ -14,8 +14,7 @@ func TestAccDataSourceTeam(t *testing.T) {
 			{
 				Config: testAccDataSourceTeam,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.mattermost_team.test", "description", "pas bon"),
-					resource.TestCheckResourceAttr("data.mattermost_team.test", "id", "549x3sak1jd49qyde8xihso3fe"),
+					resource.TestCheckResourceAttr("data.mattermost_team.test", "description", "bar description"),
 				),
 			},
 		},
@@ -23,7 +22,13 @@ func TestAccDataSourceTeam(t *testing.T) {
 }
 
 const testAccDataSourceTeam = `
+resource "mattermost_team" "foo" {
+	description = "bar description"
+	display_name = "bar display"
+	name = "bar"
+}
+
 data "mattermost_team" "test" {
-  name = "test"
+  name = mattermost_team.foo.name
 }
 `

@@ -19,6 +19,7 @@ func resourceChannel() *schema.Resource {
 		ReadContext:   resourceChannelRead,
 		UpdateContext: resourceChannelUpdate,
 		DeleteContext: resourceChannelDelete,
+		Importer:      &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -84,13 +85,18 @@ func resourceChannelRead(ctx context.Context, d *schema.ResourceData, meta inter
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	channel, _, err := c.GetChannel(id, "")
+	channel, resp, err := c.GetChannel(id, "")
 	if err != nil {
 		return diag.Errorf("cannot get channel by name: %v", err)
 	}
 
-	if channel == nil {
-		return diag.Errorf("channel with Id: %q not found", id)
+	if resp.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
+
+	if resp.StatusCode != 200 {
+		return diag.Errorf("invalid status returned %d", resp.StatusCode)
 	}
 
 	d.SetId(channel.Id)
