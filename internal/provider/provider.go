@@ -40,10 +40,12 @@ func New(version string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"mattermost_team": dataSourceTeam(),
+				"mattermost_team":    dataSourceTeam(),
+				"mattermost_channel": dataSourceChannel(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"mattermost_team": resourceTeam(),
+				"mattermost_team":    resourceTeam(),
+				"mattermost_channel": resourceChannel(),
 			},
 		}
 
