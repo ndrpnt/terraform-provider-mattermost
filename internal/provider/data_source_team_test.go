@@ -1,15 +1,12 @@
 package provider
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDataSourceScaffolding(t *testing.T) {
-	t.Skip("data source not yet implemented, remove this once you add your own code")
-
 	resource.UnitTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
@@ -17,8 +14,8 @@ func TestAccDataSourceScaffolding(t *testing.T) {
 			{
 				Config: testAccDataSourceScaffolding,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestMatchResourceAttr(
-						"data.scaffolding_data_source.foo", "sample_attribute", regexp.MustCompile("^ba")),
+					resource.TestCheckResourceAttr("data.mattermost_team.test", "description", "pas bon"),
+					resource.TestCheckResourceAttr("data.mattermost_team.test", "id", "549x3sak1jd49qyde8xihso3fe"),
 				),
 			},
 		},
@@ -26,7 +23,7 @@ func TestAccDataSourceScaffolding(t *testing.T) {
 }
 
 const testAccDataSourceScaffolding = `
-data "scaffolding_data_source" "foo" {
-  sample_attribute = "bar"
+data "mattermost_team" "test" {
+  name = "test"
 }
 `
