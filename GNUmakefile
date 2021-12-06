@@ -1,6 +1,29 @@
-default: testacc
+.DEFAULT_GOAL := help
 
-# Run acceptance tests
+# Path to the docker-compose binary
+DOCKER_COMPOSE_BIN ?= docker compose
+
+.PHONY: help
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*?## "} /^[%a-zA-Z0-9_-]+:.*?## / {printf "%-20s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+.PHONY: up
+up: ## Spin up local testing infrastructure
+	$(DOCKER_COMPOSE_BIN) up --wait
+	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local user create \
+		--email test@example.com \
+		--username test \
+		--password test123 \
+		--disable-welcome-email
+
+.PHONY: down
+down: ## Destroy local testing infrastructure
+	$(DOCKER_COMPOSE_BIN) down
+
 .PHONY: testacc
-testacc:
+testacc: ## Run acceptance tests
 	TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 2m
+
+.PHONY: test
+test: ## Run unit tests
+	go test ./... $(TESTARGS)
