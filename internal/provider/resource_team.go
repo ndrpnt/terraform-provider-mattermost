@@ -2,10 +2,12 @@ package provider
 
 import (
 	"context"
+
 	"github.com/mattermost/mattermost-server/v6/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceTeam() *schema.Resource {
@@ -34,10 +36,17 @@ func resourceTeam() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 			},
+			"type": {
+				Description:  "Type of the team.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      model.TeamOpen,
+				ValidateFunc: validation.StringInSlice([]string{model.TeamOpen, model.TeamInvite}, false),
+			},
 			"email": {
 				Description: "Administrator Email (anyone with this email is automatically a team admin).",
 				Type:        schema.TypeString,
-				Optional:    true,
+				Computed:    true,
 			},
 		},
 	}
@@ -45,27 +54,22 @@ func resourceTeam() *schema.Resource {
 
 func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
-	id := d.Id()
 
-	team, _, err := c.CreateTeam(&model.Team{
+	team, resp, err := c.CreateTeam(&model.Team{
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
-		Email:       d.Get("email").(string),
+		Type:        d.Get("type").(string),
 	})
 	if err != nil {
 		return diag.Errorf("cannot create team: %v", err)
 	}
 
-	if team == nil {
-		return diag.Errorf("team with Id: %q not found", id)
+	if resp.StatusCode != 201 {
+		return diag.Errorf("invalid status returned %d", resp.StatusCode)
 	}
 
 	d.SetId(team.Id)
-	d.Set("name", team.Name)
-	d.Set("display_name", team.DisplayName)
-	d.Set("description", team.Description)
-	d.Set("email", team.Email)
 
 	return resourceTeamRead(ctx, d, meta)
 }
@@ -88,20 +92,43 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("display_name", team.DisplayName)
 	d.Set("description", team.Description)
 	d.Set("email", team.Email)
+	d.Set("type", team.Type)
 
 	return nil
 }
 
 func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
+	c := meta.(*model.Client4)
 
-	return diag.Errorf("not implemented")
+	_, resp, err := c.UpdateTeam(&model.Team{
+		Id:          d.Id(),
+		DisplayName: d.Get("display_name").(string),
+		Name:        d.Get("name").(string),
+		Description: d.Get("description").(string),
+		Type:        d.Get("type").(string),
+	})
+	if err != nil {
+		return diag.Errorf("cannot update team: %v", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+	}
+
+	return resourceTeamRead(ctx, d, meta)
 }
 
 func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
+	c := meta.(*model.Client4)
 
-	return diag.Errorf("not implemented")
+	resp, err := c.PermanentDeleteTeam(d.Id())
+	if err != nil {
+		return diag.Errorf("cannot delete team: %v", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+	}
+
+	return nil
 }
