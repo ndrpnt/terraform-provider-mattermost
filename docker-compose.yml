@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0.27
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+  mattermost:
+    image: mattermost/mattermost-team-edition:6.1.0
+    environment:
+      MM_LOGSETTINGS_CONSOLELEVEL: DEBUG
+      MM_NOTIFICATIONLOGSETTINGS_CONSOLELEVEL: DEBUG
+      MM_SQLSETTINGS_DRIVERNAME: mysql
+      MM_SQLSETTINGS_DATASOURCE: test:test@tcp(mysql:3306)/test?charset=utf8mb4,utf8
+      MM_PASSWORDSETTINGS_MINIMUMLENGTH: 5
+      MM_PASSWORDSETTINGS_NUMBER: false
+      MM_PASSWORDSETTINGS_UPPERCASE: false
+      MM_PASSWORDSETTINGS_SYMBOL: false
+      MM_SERVICESETTINGS_ENABLELOCALMODE: true
+      MM_SERVICESETTINGS_ENABLEAPICHANNELDELETION: true
+      MM_SERVICESETTINGS_ENABLEAPITEAMDELETION: true
+    ports:
+      - 8065:8065
