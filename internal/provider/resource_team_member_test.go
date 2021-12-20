@@ -26,7 +26,7 @@ resource "mattermost_team" "test" {
 }
 
 data "mattermost_user" "test" {
-  username = "mattermostadmin"
+  username = "test"
 }
 
 resource "mattermost_team_member" "foo" {

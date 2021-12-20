@@ -21,6 +21,6 @@ func TestAccDataSourceUser(t *testing.T) {
 
 const testAccDataSourceUser = `
 data "mattermost_user" "test" {
-  username = "mattermostadmin"
+  username = "test"
 }
 `
