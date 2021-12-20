@@ -66,6 +66,7 @@ func New(version string) func() *schema.Provider {
 				"mattermost_channel":        resourceChannel(),
 				"mattermost_channel_member": resourceChannelMember(),
 				"mattermost_team_member":    resourceTeamMember(),
+				"mattermost_post":           resourcePost(),
 			},
 		}
 
