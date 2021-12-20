@@ -21,9 +21,11 @@ up: ## Spin up local testing infrastructure
 down: ## Destroy local testing infrastructure
 	$(DOCKER_COMPOSE_BIN) down
 
+# Manually export MM_LOGIN_ID=test MM_PASSWORD=test123
+# Or MM_TOKEN=…
 .PHONY: testacc
 testacc: ## Run acceptance tests
-	TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 2m
+	TF_ACC=1 MM_URL=http://localhost:8065 go test ./... -v $(TESTARGS) -timeout 2m
 
 .PHONY: test
 test: ## Run unit tests
