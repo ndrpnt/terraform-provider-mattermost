@@ -15,6 +15,7 @@ up: ## Spin up local testing infrastructure
 		--username test \
 		--password test123 \
 		--disable-welcome-email
+	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local token generate test desc
 
 .PHONY: down
 down: ## Destroy local testing infrastructure
