@@ -60,10 +60,21 @@ jobs:
         run: |
           go mod download
 
+      - name: Setup local Mattermost instance
+        run: |
+          docker compose up --wait
+          docker compose exec mattermost mmctl --local user create \
+            --email test@example.com \
+            --username test \
+            --password test123 \
+            --disable-welcome-email
+          docker compose exec mattermost mmctl --local token generate test desc
+
       - name: TF acceptance tests
         timeout-minutes: 10
         env:
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
+          MM_URL: http://localhost:8065
         run: |
-          go test -v -cover ./internal/provider/
+          go test -v -cover -timeout 5m ./...
