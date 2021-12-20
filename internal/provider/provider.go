@@ -2,11 +2,15 @@ package provider
 
 import (
 	"context"
+	"fmt"
+	"runtime"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mattermost/mattermost-server/v6/model"
 )
+
+var version = "unknown"
 
 func init() {
 	// Set descriptions to support markdown syntax, this will be used in document generation
@@ -64,6 +68,8 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		token := d.Get("token").(string)
 		c := model.NewAPIv4Client(url)
 		c.SetOAuthToken(token)
+		userAgent := fmt.Sprintf("terraform-provider-mattermost/%s (%s)", version, runtime.GOOS)
+		c.HTTPHeader = map[string]string{"User-Agent": userAgent}
 
 		return c, nil
 	}
