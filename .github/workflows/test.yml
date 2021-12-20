@@ -78,5 +78,7 @@ jobs:
           TF_ACC: "1"
           TF_ACC_TERRAFORM_VERSION: ${{ matrix.terraform }}
           MM_URL: http://localhost:8065
+          MM_LOGIN_ID: test
+          MM_PASSWORD: test123
         run: |
           go test -v -cover -timeout 5m ./...
