@@ -26,5 +26,6 @@ description: |-
 ### Read-Only
 
 - **description** (String)
+- **display_name** (String)
 
 

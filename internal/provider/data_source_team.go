@@ -17,6 +17,10 @@ func dataSourceTeam() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"display_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -31,7 +35,7 @@ func dataSourceTeamRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	team, _, err := c.GetTeamByName(name, "")
 	if err != nil {
-		return diag.Errorf("cannot get team by name: %v", err)
+		return diag.Errorf("cannot get team: %v", err)
 	}
 
 	if team == nil {
@@ -39,6 +43,7 @@ func dataSourceTeamRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	d.SetId(team.Id)
+	d.Set("display_name", team.DisplayName)
 	d.Set("description", team.Description)
 
 	return nil
