@@ -13,21 +13,33 @@ func dataSourceChannel() *schema.Resource {
 		ReadContext: dataSourceChannelRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": {
+			"team_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"display_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"header": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"team_id": {
+			"purpose": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
+			},
+			"creator_id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -38,18 +50,17 @@ func dataSourceChannelRead(_ context.Context, d *schema.ResourceData, meta inter
 	name := d.Get("name").(string)
 	teamId := d.Get("team_id").(string)
 
-	channel, _, err := c.GetChannelByName(name, teamId, "")
+	channel, resp, err := c.GetChannelByName(name, teamId, "")
 	if err != nil {
-		return diag.Errorf("cannot get channel: %v", err)
-	}
-
-	if channel == nil {
-		return diag.Errorf("channel %s not found", name)
+		return diag.Errorf("cannot get channel by name: %v", fmtErr(resp, err))
 	}
 
 	d.SetId(channel.Id)
+	d.Set("type", channel.Type)
 	d.Set("display_name", channel.DisplayName)
 	d.Set("header", channel.Header)
+	d.Set("purpose", channel.Purpose)
+	d.Set("creator_id", channel.CreatorId)
 
 	return nil
 }

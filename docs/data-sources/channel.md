@@ -26,7 +26,10 @@ description: |-
 
 ### Read-Only
 
+- **creator_id** (String)
 - **display_name** (String)
 - **header** (String)
+- **purpose** (String)
+- **type** (String)
 
 
