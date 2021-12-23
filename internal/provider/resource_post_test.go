@@ -24,7 +24,7 @@ func TestAccResourcePost(t *testing.T) {
 
 const postConfig = `
 data "mattermost_user" "example_user" {
-  username = "test"
+  username = "admin"
 }
 
 resource "mattermost_team" "example_team" {

@@ -38,7 +38,7 @@ resource "mattermost_channel" "foo" {
 }
 
 data "mattermost_user" "test" {
-  username = "test"
+  username = "admin"
 }
 
 resource "mattermost_channel_member" "foo" {
