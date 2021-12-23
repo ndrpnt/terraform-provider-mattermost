@@ -13,27 +13,31 @@ func TestAccDataSourceChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceChannel,
-				Check:  resource.ComposeTestCheckFunc(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.mattermost_channel.sut", "display_name", "Example display name"),
+					resource.TestCheckResourceAttr("data.mattermost_channel.sut", "header", "Example header"),
+				),
 			},
 		},
 	})
 }
 
 const testAccDataSourceChannel = `
-resource "mattermost_team" "test" {
-	name = "sheh"
-	display_name = "An sheh bis"
+resource "mattermost_team" "example_team" {
+	name = "examplename"
+	display_name = "Example display name"
+	description = "Example description"
 }
 
-resource "mattermost_channel" "foo" {
-	description = "bar description"
-	display_name = "bar display"
-  	name = "bar"
-	team_id = mattermost_team.test.id
+resource "mattermost_channel" "example_channel" {
+	name = "examplename"
+	display_name = "Example display name"
+	header = "Example header"
+	team_id = mattermost_team.example_team.id
 }
 
-data "mattermost_channel" "test" {
-  name = mattermost_channel.foo.name
-  team_id = mattermost_team.test.id
+data "mattermost_channel" "sut" {
+  name = mattermost_channel.example_channel.name
+  team_id = mattermost_team.example_team.id
 }
 `
