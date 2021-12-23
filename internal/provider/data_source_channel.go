@@ -21,6 +21,10 @@ func dataSourceChannel() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"header": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"team_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -36,7 +40,7 @@ func dataSourceChannelRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	channel, _, err := c.GetChannelByName(name, teamId, "")
 	if err != nil {
-		return diag.Errorf("cannot get channel by name: %v", err)
+		return diag.Errorf("cannot get channel: %v", err)
 	}
 
 	if channel == nil {
@@ -45,6 +49,7 @@ func dataSourceChannelRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	d.SetId(channel.Id)
 	d.Set("display_name", channel.DisplayName)
+	d.Set("header", channel.Header)
 
 	return nil
 }
