@@ -27,5 +27,6 @@ description: |-
 ### Read-Only
 
 - **display_name** (String)
+- **header** (String)
 
 
