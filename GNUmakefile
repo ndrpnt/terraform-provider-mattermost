@@ -11,21 +11,23 @@ help: ## Show this help
 up: ## Spin up local testing infrastructure
 	$(DOCKER_COMPOSE_BIN) up --wait
 	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local user create \
-		--email test@example.com \
-		--username test \
-		--password test123 \
+		--email admin@example.com \
+		--username admin \
+		--password admin \
 		--disable-welcome-email
-	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local token generate test desc
+	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local token generate admin 'For local testing'
 
 .PHONY: down
 down: ## Destroy local testing infrastructure
 	$(DOCKER_COMPOSE_BIN) down
 
-# Manually export MM_LOGIN_ID=test MM_PASSWORD=test123
-# Or MM_TOKEN=…
 .PHONY: testacc
+testacc: export TF_ACC=1
+testacc: export MM_URL=http://localhost:8065
+testacc: export MM_LOGIN_ID=admin
+testacc: export MM_PASSWORD=admin
 testacc: ## Run acceptance tests
-	TF_ACC=1 MM_URL=http://localhost:8065 go test ./... -v $(TESTARGS) -timeout 2m
+	go test ./... -v $(TESTARGS) -timeout 2m
 
 .PHONY: test
 test: ## Run unit tests
