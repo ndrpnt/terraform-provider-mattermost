@@ -13,14 +13,16 @@ func TestAccDataSourceUser(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceUser,
-				Check:  resource.ComposeTestCheckFunc(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.mattermost_user.sut", "email", "admin@example.com"),
+				),
 			},
 		},
 	})
 }
 
 const testAccDataSourceUser = `
-data "mattermost_user" "test" {
-  username = "test"
+data "mattermost_user" "sut" {
+  username = "admin"
 }
 `
