@@ -10,8 +10,6 @@ import (
 	"github.com/mattermost/mattermost-server/v6/model"
 )
 
-var version = "unknown"
-
 func init() {
 	// Set descriptions to support markdown syntax, this will be used in document generation
 	// and the language server.
