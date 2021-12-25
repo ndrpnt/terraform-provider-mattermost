@@ -195,6 +195,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 
 	user := &model.User{
+		CreateAt:  -1, // Mattermost doesn't persist this value but returns an HTTP 400 error if it is 0.
 		Id:        d.Id(),
 		Username:  d.Get("username").(string),
 		Email:     d.Get("email").(string),
