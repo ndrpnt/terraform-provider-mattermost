@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/mattermost/mattermost-server/v6/model"
 )
 
@@ -14,8 +15,6 @@ import (
 // 2) `notify_props` can only be read for the authenticated user. This provider
 //    doesn't manage them at all, as there is little benefit to it anyway.
 func resourceUser() *schema.Resource {
-	authMethods := []string{"auth_data", "password"}
-
 	return &schema.Resource{
 		Description: "Manage a user.",
 
@@ -50,22 +49,24 @@ func resourceUser() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Description:  "Service-specific authentication data, such as email address.",
-				ExactlyOneOf: authMethods,
 				ForceNew:     true,
+				RequiredWith: []string{"auth_service"},
 			},
 			"auth_service": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Description:  `The authentication service, one of "email", "gitlab", "ldap", "saml", "office365", "google", and "".`,
-				RequiredWith: []string{"auth_data"},
-				ForceNew:     true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Description:      `The authentication service, one of "email", "gitlab", "ldap", "saml", "office365", and "google".`,
+				ForceNew:         true,
+				ValidateDiagFunc: validation.ToDiagFunc(validation.StringInSlice([]string{"email", "gitlab", "ldap", "saml", "office365", "google"}, false)),
+				ExactlyOneOf:     []string{"auth_service", "password"},
+				RequiredWith:     []string{"auth_data"},
 			},
 			"password": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
 				Description:  "The password used for email authentication.",
-				ExactlyOneOf: authMethods,
+				ExactlyOneOf: []string{"auth_service", "password"},
 			},
 			"locale": {
 				Type:     schema.TypeString,
