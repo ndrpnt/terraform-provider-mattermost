@@ -8,6 +8,11 @@ import (
 	"github.com/mattermost/mattermost-server/v6/model"
 )
 
+// Note that:
+// 1) `auth_data` and `password` cannot be read. Thus, Terraform's refresh and
+//    drift detection are not working as expected for these fields.
+// 2) `notify_props` can only be read for the authenticated user. This provider
+//    doesn't manage them at all, as there is little benefit to it anyway.
 func resourceUser() *schema.Resource {
 	authMethods := []string{"auth_data", "password"}
 
@@ -71,50 +76,6 @@ func resourceUser() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"notify_props": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"email": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Set to "true" to enable email notifications, "false" to disable. Defaults to "true".`,
-						},
-						"push": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Set to "all" to receive push notifications for all activity, "mention" for mentions and direct messages only, and "none" to disable. Defaults to "mention".`,
-						},
-						"desktop": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Set to "all" to receive desktop notifications for all activity, "mention" for mentions and direct messages only, and "none" to disable. Defaults to "all".`,
-						},
-						"desktop_sound": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Set to "true" to enable sound on desktop notifications, "false" to disable. Defaults to "true".`,
-						},
-						"mention_keys": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `A comma-separated list of words to count as mentions. Defaults to username and @username.`,
-						},
-						"channel": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Set to "true" to enable channel-wide notifications (@channel, @all, etc.), "false" to disable. Defaults to "true".`,
-						},
-						"first_name": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Set to "true" to enable mentions for first name. Defaults to "true" if a first name is set, "false" otherwise.`,
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -138,12 +99,6 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 	if props, ok := d.GetOk("props"); ok {
 		user.Props = expandStringMap(props.(map[string]interface{}))
-	}
-	if notifyProps, ok := d.GetOk("notify_props"); ok {
-		np := notifyProps.([]interface{})
-		if len(np) > 0 {
-			user.NotifyProps = expandStringMap(np[0].(map[string]interface{}))
-		}
 	}
 
 	user, resp, err := c.CreateUser(user)
@@ -169,16 +124,13 @@ func resourceUserRead(_ context.Context, d *schema.ResourceData, meta interface{
 	}
 
 	d.Set("username", user.Username)
-	d.Set("password", user.Password)
 	d.Set("auth_service", user.AuthService)
 	d.Set("email", user.Email)
 	d.Set("nickname", user.Nickname)
 	d.Set("first_name", user.FirstName)
 	d.Set("last_name", user.LastName)
 	d.Set("locale", user.Locale)
-	d.Set("auth_data", user.AuthData)
 	d.Set("props", user.Props)
-	d.Set("notify_props", []interface{}{user.NotifyProps})
 
 	return nil
 }
@@ -206,12 +158,6 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	}
 	if props, ok := d.GetOk("props"); ok {
 		user.Props = expandStringMap(props.(map[string]interface{}))
-	}
-	if notifyProps, ok := d.GetOk("notify_props"); ok {
-		np := notifyProps.([]interface{})
-		if len(np) > 0 {
-			user.NotifyProps = expandStringMap(np[0].(map[string]interface{}))
-		}
 	}
 
 	user, resp, err := c.UpdateUser(user)
