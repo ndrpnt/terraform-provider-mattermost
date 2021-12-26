@@ -34,24 +34,28 @@ func New(version string) func() *schema.Provider {
 					Type:        schema.TypeString,
 					Required:    true,
 					DefaultFunc: schema.EnvDefaultFunc("MM_URL", nil),
+					Description: "Can also be provided via the MM_URL environment variable",
 				},
 				"token": {
 					Type:         schema.TypeString,
 					Optional:     true,
 					DefaultFunc:  schema.EnvDefaultFunc("MM_TOKEN", nil),
 					ExactlyOneOf: []string{"token", "login_id"},
+					Description:  "Can also be provided via the MM_TOKEN environment variable",
 				},
 				"login_id": {
 					Type:         schema.TypeString,
 					Optional:     true,
 					DefaultFunc:  schema.EnvDefaultFunc("MM_LOGIN_ID", nil),
 					ExactlyOneOf: []string{"token", "login_id"},
+					Description:  "Can also be provided via the MM_LOGIN_ID environment variable",
 				},
 				"password": {
 					Type:         schema.TypeString,
 					Optional:     true,
 					DefaultFunc:  schema.EnvDefaultFunc("MM_PASSWORD", nil),
 					RequiredWith: []string{"login_id"},
+					Description:  "Can also be provided via the MM_PASSWORD environment variable",
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
