@@ -71,6 +71,7 @@ func resourceUser() *schema.Resource {
 			"locale": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"props": {
 				Type:     schema.TypeMap,
