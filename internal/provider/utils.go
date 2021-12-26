@@ -7,6 +7,10 @@ import (
 )
 
 func fmtErr(resp *model.Response, err error) error {
+	if resp == nil {
+		return err
+	}
+
 	return fmt.Errorf("request %s failed with status %d: %v", resp.RequestId, resp.StatusCode, err)
 }
 
