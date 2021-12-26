@@ -14,7 +14,7 @@ func TestAccDataSourceChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceChannelConfig(acctest.RandString(16)),
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.mattermost_channel.sut", "type", "O"),
 					resource.TestCheckResourceAttr("data.mattermost_channel.sut", "display_name", "Example display name"),
 					resource.TestCheckResourceAttr("data.mattermost_channel.sut", "header", "Example header"),

@@ -12,7 +12,7 @@ func TestAccResourceTeamMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceTeamMember,
-				Check:  resource.ComposeTestCheckFunc(),
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})

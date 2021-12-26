@@ -12,7 +12,7 @@ func TestAccResourceChannelMember(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceChannelMember,
-				Check:  resource.ComposeTestCheckFunc(),
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})

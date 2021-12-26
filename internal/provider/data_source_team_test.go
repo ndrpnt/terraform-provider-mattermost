@@ -12,7 +12,7 @@ func TestAccDataSourceTeam(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceTeam,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.mattermost_team.sut", "display_name", "Example display name"),
 					resource.TestCheckResourceAttr("data.mattermost_team.sut", "description", "Example description"),
 				),

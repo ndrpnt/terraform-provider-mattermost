@@ -12,7 +12,7 @@ func TestAccDataSourceUser(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceUser,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.mattermost_user.sut", "email", "admin@example.com"),
 				),
 			},

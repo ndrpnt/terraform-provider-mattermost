@@ -12,7 +12,7 @@ func TestAccResourceChannel(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceChannel,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("mattermost_channel.foo", "name", "bar"),
 					resource.TestCheckResourceAttr("mattermost_channel.foo", "display_name", "bar display"),
 					resource.TestCheckResourceAttr("mattermost_channel.foo", "description", "bar description"),
