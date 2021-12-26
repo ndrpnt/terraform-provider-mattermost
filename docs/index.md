@@ -17,10 +17,10 @@ description: |-
 
 ### Required
 
-- **url** (String)
+- **url** (String) Can also be provided via the MM_URL environment variable
 
 ### Optional
 
-- **login_id** (String)
-- **password** (String)
-- **token** (String)
+- **login_id** (String) Can also be provided via the MM_LOGIN_ID environment variable
+- **password** (String) Can also be provided via the MM_PASSWORD environment variable
+- **token** (String) Can also be provided via the MM_TOKEN environment variable

@@ -8,12 +8,11 @@ import (
 
 func TestAccResourceTeam(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceTeam,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("mattermost_team.foo", "name", "bar"),
 					resource.TestCheckResourceAttr("mattermost_team.foo", "display_name", "bar display"),
 					resource.TestCheckResourceAttr("mattermost_team.foo", "description", "bar description"),

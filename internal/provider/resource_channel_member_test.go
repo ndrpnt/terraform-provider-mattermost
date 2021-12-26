@@ -8,12 +8,11 @@ import (
 
 func TestAccResourceChannelMember(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceChannelMember,
-				Check:  resource.ComposeTestCheckFunc(),
+				Check:  resource.ComposeAggregateTestCheckFunc(),
 			},
 		},
 	})

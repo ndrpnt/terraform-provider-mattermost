@@ -8,12 +8,11 @@ import (
 
 func TestAccResourcePost(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: postConfig,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrPair("mattermost_post.example_post", "channel_id", "mattermost_channel.example_channel", "id"),
 					resource.TestCheckResourceAttr("mattermost_post.example_post", "message", "Example post message"),
 				),
