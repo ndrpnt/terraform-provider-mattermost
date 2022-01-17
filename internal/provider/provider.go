@@ -5,100 +5,172 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/mattermost/mattermost-server/v6/model"
 )
 
-func init() {
-	// Set descriptions to support markdown syntax, this will be used in document generation
-	// and the language server.
-	schema.DescriptionKind = schema.StringMarkdown
-
-	// Customize the content of descriptions when output. For example you can add defaults on
-	// to the exported descriptions if present.
-	// schema.SchemaDescriptionBuilder = func(s *schema.Schema) string {
-	// 	desc := s.Description
-	// 	if s.Default != nil {
-	// 		desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
-	// 	}
-	// 	return strings.TrimSpace(desc)
-	// }
+type provider struct {
+	client     *model.Client4
+	configured bool
+	version    string
 }
 
-func New(version string) func() *schema.Provider {
-	return func() *schema.Provider {
-		p := &schema.Provider{
-			Schema: map[string]*schema.Schema{
-				"url": {
-					Type:        schema.TypeString,
-					Required:    true,
-					DefaultFunc: schema.EnvDefaultFunc("MM_URL", nil),
-					Description: "Can also be provided via the MM_URL environment variable",
-				},
-				"token": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_TOKEN", nil),
-					ExactlyOneOf: []string{"token", "login_id"},
-					Description:  "Can also be provided via the MM_TOKEN environment variable",
-				},
-				"login_id": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_LOGIN_ID", nil),
-					ExactlyOneOf: []string{"token", "login_id"},
-					Description:  "Can also be provided via the MM_LOGIN_ID environment variable",
-				},
-				"password": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_PASSWORD", nil),
-					RequiredWith: []string{"login_id"},
-					Description:  "Can also be provided via the MM_PASSWORD environment variable",
-				},
-			},
-			DataSourcesMap: map[string]*schema.Resource{
-				"mattermost_team":    dataSourceTeam(),
-				"mattermost_channel": dataSourceChannel(),
-				"mattermost_user":    dataSourceUser(),
-			},
-			ResourcesMap: map[string]*schema.Resource{
-				"mattermost_team":           resourceTeam(),
-				"mattermost_channel":        resourceChannel(),
-				"mattermost_channel_member": resourceChannelMember(),
-				"mattermost_team_member":    resourceTeamMember(),
-				"mattermost_post":           resourcePost(),
-				"mattermost_user":           resourceUser(),
-			},
+type providerData struct {
+	Url      types.String `tfsdk:"url"`
+	Token    types.String `tfsdk:"token"`
+	LoginId  types.String `tfsdk:"login_id"`
+	Password types.String `tfsdk:"password"`
+}
+
+func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+	var data providerData
+	diags := req.Config.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	c := model.NewAPIv4Client(data.Url.Value)
+	userAgent := fmt.Sprintf("terraform-provider-mattermost/%s (%s)", p.version, runtime.GOOS)
+	c.HTTPHeader = map[string]string{"User-Agent": userAgent}
+
+	if !data.Token.Null {
+		c.SetOAuthToken(data.Token.Value)
+	} else {
+		_, _, err := c.Login(data.LoginId.Value, data.Password.Value)
+		if err != nil {
+			resp.Diagnostics.AddError("Cannot login with given login_id and password", err.Error())
+			return
 		}
+	}
 
-		p.ConfigureContextFunc = configure(version, p)
+	p.configured = true
+}
 
-		return p
+func (p *provider) GetResources(context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
+	return map[string]tfsdk.ResourceType{
+		// "mattermost_team":           teamResource{},
+		// "mattermost_channel":        channelResource{},
+		// "mattermost_channel_member": channelMemberResource{},
+		// "mattermost_team_member":    teamMemberResource{},
+		// "mattermost_post":           postResource{},
+		// "mattermost_user":           userResource{},
+	}, nil
+}
+
+func (p *provider) GetDataSources(context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
+	return map[string]tfsdk.DataSourceType{
+		// "mattermost_team":    teamDataSource{},
+		// "mattermost_channel": channelDataSource{},
+		// "mattermost_user":    userDataSource{},
+	}, nil
+}
+
+// "url": {
+//     Required:    true,
+//     DefaultFunc: schema.EnvDefaultFunc("MM_URL", nil),
+// "token": {
+//     Optional:     true,
+//     DefaultFunc:  schema.EnvDefaultFunc("MM_TOKEN", nil),
+//     ExactlyOneOf: []string{"token", "login_id"},
+// "login_id": {
+//     Optional:     true,
+//     DefaultFunc:  schema.EnvDefaultFunc("MM_LOGIN_ID", nil),
+//     ExactlyOneOf: []string{"token", "login_id"},
+// "password": {
+//     Optional:     true,
+//     DefaultFunc:  schema.EnvDefaultFunc("MM_PASSWORD", nil),
+//     RequiredWith: []string{"login_id"},
+
+func (p *provider) GetSchema(context.Context) (tfsdk.Schema, diag.Diagnostics) {
+	return tfsdk.Schema{
+		Attributes: map[string]tfsdk.Attribute{
+			"url": {
+				MarkdownDescription: "Can also be provided via the MM_URL environment variable",
+				Optional:            true,
+				Type:                types.StringType,
+			},
+			"token": {
+				MarkdownDescription: "Can also be provided via the MM_TOKEN environment variable",
+				Optional:            true,
+				Type:                types.StringType,
+				Validators: []tfsdk.AttributeValidator{
+					Validator(loginPasswordOrToken),
+				},
+			},
+			"login_id": {
+				MarkdownDescription: "Can also be provided via the MM_LOGIN_ID environment variable",
+				Optional:            true,
+				Type:                types.StringType,
+				Validators: []tfsdk.AttributeValidator{
+					Validator(loginPasswordOrToken),
+				},
+			},
+			"password": {
+				MarkdownDescription: "Can also be provided via the MM_PASSWORD environment variable",
+				Optional:            true,
+				Type:                types.StringType,
+				Validators: []tfsdk.AttributeValidator{
+					Validator(loginPasswordOrToken),
+				},
+			},
+		},
+	}, nil
+}
+
+func New(version string) func() tfsdk.Provider {
+	return func() tfsdk.Provider {
+		return &provider{
+			version: version,
+		}
 	}
 }
 
-func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		url := d.Get("url").(string)
+func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
+	var diags diag.Diagnostics
 
-		c := model.NewAPIv4Client(url)
-		userAgent := fmt.Sprintf("terraform-provider-mattermost/%s (%s)", version, runtime.GOOS)
-		c.HTTPHeader = map[string]string{"User-Agent": userAgent}
+	p, ok := in.(*provider)
 
-		token, ok := d.GetOk("token")
-		if ok {
-			c.SetOAuthToken(token.(string))
-		} else {
-			loginId := d.Get("login_id").(string)
-			password := d.Get("password").(string)
-			_, _, err := c.Login(loginId, password)
-			if err != nil {
-				return nil, diag.Errorf("cannot login with given login_id and password: %v", err)
-			}
-		}
+	if !ok {
+		diags.AddError(
+			"Unexpected Provider Instance Type",
+			fmt.Sprintf("While creating the data source or resource, an unexpected provider type (%T) was received. This is always a bug in the provider code and should be reported to the provider developers.", p),
+		)
+		return provider{}, diags
+	}
 
-		return c, nil
+	if p == nil {
+		diags.AddError(
+			"Unexpected Provider Instance Type",
+			"While creating the data source or resource, an unexpected empty provider instance was received. This is always a bug in the provider code and should be reported to the provider developers.",
+		)
+		return provider{}, diags
+	}
+
+	return *p, diags
+}
+
+func loginPasswordOrToken(ctx context.Context, req tfsdk.ValidateAttributeRequest, resp *tfsdk.ValidateAttributeResponse) {
+	var data providerData
+	diags := req.Config.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if data.Token.Unknown || data.LoginId.Unknown && data.Password.Unknown {
+		return
+	}
+
+	if data.Token.Null && (data.LoginId.Null || data.Password.Null) {
+		resp.Diagnostics.AddError(`Either token or login_id/password must be specified`, "")
+		return
+	}
+
+	if !data.Token.Null && (!data.LoginId.Null || !data.Password.Null) {
+		resp.Diagnostics.AddError(`Either token or login_id/password must be specified`, "")
+		return
 	}
 }
