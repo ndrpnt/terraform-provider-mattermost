@@ -3,102 +3,113 @@ package provider
 import (
 	"context"
 	"fmt"
-	"runtime"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func init() {
-	// Set descriptions to support markdown syntax, this will be used in document generation
-	// and the language server.
-	schema.DescriptionKind = schema.StringMarkdown
+// provider satisfies the tfsdk.Provider interface and usually is included
+// with all Resource and DataSource implementations.
+type provider struct {
+	// client can contain the upstream provider SDK or HTTP client used to
+	// communicate with the upstream service. Resource and DataSource
+	// implementations can then make calls using this client.
+	//
+	// TODO: If appropriate, implement upstream provider SDK or HTTP client.
+	// client vendorsdk.ExampleClient
 
-	// Customize the content of descriptions when output. For example you can add defaults on
-	// to the exported descriptions if present.
-	// schema.SchemaDescriptionBuilder = func(s *schema.Schema) string {
-	// 	desc := s.Description
-	// 	if s.Default != nil {
-	// 		desc += fmt.Sprintf(" Defaults to `%v`.", s.Default)
-	// 	}
-	// 	return strings.TrimSpace(desc)
-	// }
+	// configured is set to true at the end of the Configure method.
+	// This can be used in Resource and DataSource implementations to verify
+	// that the provider was previously configured.
+	configured bool
+
+	// version is set to the provider version on release, "dev" when the
+	// provider is built and ran locally, and "test" when running acceptance
+	// testing.
+	version string
 }
 
-func New(version string) func() *schema.Provider {
-	return func() *schema.Provider {
-		p := &schema.Provider{
-			Schema: map[string]*schema.Schema{
-				"url": {
-					Type:        schema.TypeString,
-					Required:    true,
-					DefaultFunc: schema.EnvDefaultFunc("MM_URL", nil),
-					Description: "Can also be provided via the MM_URL environment variable",
-				},
-				"token": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_TOKEN", nil),
-					ExactlyOneOf: []string{"token", "login_id"},
-					Description:  "Can also be provided via the MM_TOKEN environment variable",
-				},
-				"login_id": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_LOGIN_ID", nil),
-					ExactlyOneOf: []string{"token", "login_id"},
-					Description:  "Can also be provided via the MM_LOGIN_ID environment variable",
-				},
-				"password": {
-					Type:         schema.TypeString,
-					Optional:     true,
-					DefaultFunc:  schema.EnvDefaultFunc("MM_PASSWORD", nil),
-					RequiredWith: []string{"login_id"},
-					Description:  "Can also be provided via the MM_PASSWORD environment variable",
-				},
+// providerData can be used to store data from the Terraform configuration.
+type providerData struct {
+	Example types.String `tfsdk:"example"`
+}
+
+func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+	var data providerData
+	diags := req.Config.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Configuration values are now available.
+	// if data.Example.Null { /* ... */ }
+
+	// If the upstream provider SDK or HTTP client requires configuration, such
+	// as authentication or logging, this is a great opportunity to do so.
+
+	p.configured = true
+}
+
+func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
+	return map[string]tfsdk.ResourceType{
+		"scaffolding_example": exampleResourceType{},
+	}, nil
+}
+
+func (p *provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
+	return map[string]tfsdk.DataSourceType{
+		"scaffolding_example": exampleDataSourceType{},
+	}, nil
+}
+
+func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+	return tfsdk.Schema{
+		Attributes: map[string]tfsdk.Attribute{
+			"example": {
+				MarkdownDescription: "Example provider attribute",
+				Optional:            true,
+				Type:                types.StringType,
 			},
-			DataSourcesMap: map[string]*schema.Resource{
-				"mattermost_team":    dataSourceTeam(),
-				"mattermost_channel": dataSourceChannel(),
-				"mattermost_user":    dataSourceUser(),
-			},
-			ResourcesMap: map[string]*schema.Resource{
-				"mattermost_team":           resourceTeam(),
-				"mattermost_channel":        resourceChannel(),
-				"mattermost_channel_member": resourceChannelMember(),
-				"mattermost_team_member":    resourceTeamMember(),
-				"mattermost_post":           resourcePost(),
-				"mattermost_user":           resourceUser(),
-			},
+		},
+	}, nil
+}
+
+func New(version string) func() tfsdk.Provider {
+	return func() tfsdk.Provider {
+		return &provider{
+			version: version,
 		}
-
-		p.ConfigureContextFunc = configure(version, p)
-
-		return p
 	}
 }
 
-func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		url := d.Get("url").(string)
+// convertProviderType is a helper function for NewResource and NewDataSource
+// implementations to associate the concrete provider type. Alternatively,
+// this helper can be skipped and the provider type can be directly type
+// asserted (e.g. provider: in.(*provider)), however using this can prevent
+// potential panics.
+func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
+	var diags diag.Diagnostics
 
-		c := model.NewAPIv4Client(url)
-		userAgent := fmt.Sprintf("terraform-provider-mattermost/%s (%s)", version, runtime.GOOS)
-		c.HTTPHeader = map[string]string{"User-Agent": userAgent}
+	p, ok := in.(*provider)
 
-		token, ok := d.GetOk("token")
-		if ok {
-			c.SetOAuthToken(token.(string))
-		} else {
-			loginId := d.Get("login_id").(string)
-			password := d.Get("password").(string)
-			_, _, err := c.Login(loginId, password)
-			if err != nil {
-				return nil, diag.Errorf("cannot login with given login_id and password: %v", err)
-			}
-		}
-
-		return c, nil
+	if !ok {
+		diags.AddError(
+			"Unexpected Provider Instance Type",
+			fmt.Sprintf("While creating the data source or resource, an unexpected provider type (%T) was received. This is always a bug in the provider code and should be reported to the provider developers.", p),
+		)
+		return provider{}, diags
 	}
+
+	if p == nil {
+		diags.AddError(
+			"Unexpected Provider Instance Type",
+			"While creating the data source or resource, an unexpected empty provider instance was received. This is always a bug in the provider code and should be reported to the provider developers.",
+		)
+		return provider{}, diags
+	}
+
+	return *p, diags
 }
