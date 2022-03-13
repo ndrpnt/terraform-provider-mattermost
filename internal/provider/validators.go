@@ -2,27 +2,24 @@ package provider
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
 const (
 	conflictsWithErr         = "There was a conflict detected."
-	conflictsWithDescription =
+	conflictsWithDescription = ""
 )
 
-type conflictsWithValidator struct {
-	conflicts []*tftypes.AttributePath
-}
+// type conflictsWithValidator struct {
+// 	conflicts []*tftypes.AttributePath
+// }
 
-func ConflictsWith(paths ...*tftypes.AttributePath) tfsdk.AttributeValidator {
-	http.HandlerFunc()
-	return conflictsWithValidator{
-		conflicts: paths,
-	}
-}
+// func ConflictsWith(paths ...*tftypes.AttributePath) tfsdk.AttributeValidator {
+// 	return conflictsWithValidator{
+// 		conflicts: paths,
+// 	}
+// }
 
 // /////////
 

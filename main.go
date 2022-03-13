@@ -6,24 +6,32 @@ package main
 
 import (
 	"context"
-	"log"
+	"flag"
+	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-provider-mattermost/internal/provider"
 )
 
 var (
-	version = "dev"
+	version = "unknown"
 	commit  = "unknown"
 )
 
 func main() {
-	opts := tfsdk.ServeOpts{
-		Name: "registry.terraform.io/ndrpnt/mattermost",
-	}
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	flag.Parse()
 
-	err := tfsdk.Serve(context.Background(), provider.New(version), opts)
+	ctx := context.Background()
+	err := tfsdk.Serve(ctx, provider.New(version), tfsdk.ServeOpts{
+		Name:  "registry.terraform.io/ndrpnt/mattermost",
+		Debug: debug,
+	})
 	if err != nil {
-		log.Fatal(err.Error())
+		tflog.Error(ctx, fmt.Sprintf("Cannot serve provider: %v", err))
+		os.Exit(1)
 	}
 }
