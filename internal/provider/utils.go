@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/mattermost/mattermost-server/v6/model"
 )
 
@@ -21,4 +22,13 @@ func expandStringMap(m map[string]interface{}) map[string]string {
 	}
 
 	return r
+}
+
+// Check whether an attribute is "set", i.e. both known and not null.
+//
+// The implementation is quite wasteful but there doesn't seem to be a batter
+// API available to check for Null/Unknown generically on all types.
+func isSet(x attr.Value) bool {
+	v, err := x.ToTerraformValue(nil)
+	return err != nil && v.IsFullyKnown() && !v.IsNull()
 }

@@ -24,6 +24,41 @@ type providerData struct {
 	Password types.String `tfsdk:"password"`
 }
 
+func (p *provider) ValidateConfig(ctx context.Context, req tfsdk.ValidateProviderConfigRequest, resp *tfsdk.ValidateProviderConfigResponse) {
+	var data providerData
+	diags := req.Config.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	badCredentials := "Either token or login_id/password must be specified"
+
+	if data.LoginId.Null && isSet(data.Password) {
+		resp.Diagnostics.AddError(badCredentials, "Password is set but login is null")
+	}
+
+	if data.Password.Null && isSet(data.LoginId) {
+		resp.Diagnostics.AddError(badCredentials, "Login is set but password is null")
+	}
+
+	if data.Token.Null && data.LoginId.Null {
+		resp.Diagnostics.AddError(badCredentials, "Both token and login are null")
+	}
+
+	if data.Token.Null && data.Password.Null {
+		resp.Diagnostics.AddError(badCredentials, "Both token and password are null")
+	}
+
+	if isSet(data.Token) && isSet(data.LoginId) {
+		resp.Diagnostics.AddError(badCredentials, "Both token and login are set")
+	}
+
+	if isSet(data.Token) && isSet(data.Password) {
+		resp.Diagnostics.AddError(badCredentials, "Both token and password are set")
+	}
+}
+
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
 	var data providerData
 	diags := req.Config.Get(ctx, &data)
@@ -32,6 +67,8 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
+	// Check for unknown and env vars …
+	// See https://learn.hashicorp.com/tutorials/terraform/plugin-framework-create
 	c := model.NewAPIv4Client(data.Url.Value)
 	userAgent := fmt.Sprintf("terraform-provider-mattermost/%s (%s)", p.version, runtime.GOOS)
 	c.HTTPHeader = map[string]string{"User-Agent": userAgent}
@@ -68,22 +105,6 @@ func (p *provider) GetDataSources(context.Context) (map[string]tfsdk.DataSourceT
 	}, nil
 }
 
-// "url": {
-//     Required:    true,
-//     DefaultFunc: schema.EnvDefaultFunc("MM_URL", nil),
-// "token": {
-//     Optional:     true,
-//     DefaultFunc:  schema.EnvDefaultFunc("MM_TOKEN", nil),
-//     ExactlyOneOf: []string{"token", "login_id"},
-// "login_id": {
-//     Optional:     true,
-//     DefaultFunc:  schema.EnvDefaultFunc("MM_LOGIN_ID", nil),
-//     ExactlyOneOf: []string{"token", "login_id"},
-// "password": {
-//     Optional:     true,
-//     DefaultFunc:  schema.EnvDefaultFunc("MM_PASSWORD", nil),
-//     RequiredWith: []string{"login_id"},
-
 func (p *provider) GetSchema(context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
@@ -96,19 +117,16 @@ func (p *provider) GetSchema(context.Context) (tfsdk.Schema, diag.Diagnostics) {
 				MarkdownDescription: "Can also be provided via the MM_TOKEN environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 			"login_id": {
 				MarkdownDescription: "Can also be provided via the MM_LOGIN_ID environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 			"password": {
 				MarkdownDescription: "Can also be provided via the MM_PASSWORD environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 		},
 	}, nil
@@ -143,27 +161,4 @@ func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
 	}
 
 	return *p, diags
-}
-
-func loginPasswordOrToken(ctx context.Context, req tfsdk.ValidateAttributeRequest, resp *tfsdk.ValidateAttributeResponse) {
-	var data providerData
-	diags := req.Config.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if data.Token.Unknown || data.LoginId.Unknown && data.Password.Unknown {
-		return
-	}
-
-	if data.Token.Null && (data.LoginId.Null || data.Password.Null) {
-		resp.Diagnostics.AddError(`Either token or login_id/password must be specified`, "")
-		return
-	}
-
-	if !data.Token.Null && (!data.LoginId.Null || !data.Password.Null) {
-		resp.Diagnostics.AddError(`Either token or login_id/password must be specified`, "")
-		return
-	}
 }
