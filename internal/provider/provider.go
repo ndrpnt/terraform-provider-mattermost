@@ -96,25 +96,19 @@ func (p *provider) GetSchema(context.Context) (tfsdk.Schema, diag.Diagnostics) {
 				MarkdownDescription: "Can also be provided via the MM_TOKEN environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators: []tfsdk.AttributeValidator{
-					Validator(loginPasswordOrToken),
-				},
+				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 			"login_id": {
 				MarkdownDescription: "Can also be provided via the MM_LOGIN_ID environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators: []tfsdk.AttributeValidator{
-					Validator(loginPasswordOrToken),
-				},
+				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 			"password": {
 				MarkdownDescription: "Can also be provided via the MM_PASSWORD environment variable",
 				Optional:            true,
 				Type:                types.StringType,
-				Validators: []tfsdk.AttributeValidator{
-					Validator(loginPasswordOrToken),
-				},
+				Validators:          []tfsdk.AttributeValidator{Validator(loginPasswordOrToken)},
 			},
 		},
 	}, nil
@@ -132,7 +126,6 @@ func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	p, ok := in.(*provider)
-
 	if !ok {
 		diags.AddError(
 			"Unexpected Provider Instance Type",
