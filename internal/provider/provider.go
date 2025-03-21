@@ -64,12 +64,13 @@ func New(version string) func() *schema.Provider {
 				"mattermost_user":    dataSourceUser(),
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"mattermost_team":           resourceTeam(),
-				"mattermost_channel":        resourceChannel(),
-				"mattermost_channel_member": resourceChannelMember(),
-				"mattermost_team_member":    resourceTeamMember(),
-				"mattermost_post":           resourcePost(),
-				"mattermost_user":           resourceUser(),
+				"mattermost_team":             resourceTeam(),
+				"mattermost_channel":          resourceChannel(),
+				"mattermost_channel_member":   resourceChannelMember(),
+				"mattermost_team_member":      resourceTeamMember(),
+				"mattermost_post":             resourcePost(),
+				"mattermost_user":             resourceUser(),
+				"mattermost_incoming_webhook": ressourceIncomingWebhook(),
 			},
 		}
 
