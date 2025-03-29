@@ -5,9 +5,7 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/hashicorp/terraform-provider-mattermost/internal/provider"
@@ -19,20 +17,13 @@ var (
 )
 
 func main() {
-	var debugMode bool
-
-	flag.BoolVar(&debugMode, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	var debug bool
+	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
 	flag.Parse()
 
-	opts := &plugin.ServeOpts{ProviderFunc: provider.New(version)}
-
-	if debugMode {
-		err := plugin.Debug(context.Background(), "octo.tools/providers/mattermost", opts)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return
-	}
-
-	plugin.Serve(opts)
+	plugin.Serve(&plugin.ServeOpts{
+		ProviderFunc: provider.New(version),
+		ProviderAddr: "registry.terraform.io/ndrpnt/mattermost",
+		Debug:        debug,
+	})
 }
