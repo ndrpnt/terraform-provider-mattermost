@@ -17,16 +17,11 @@ description: |-
 
 ### Required
 
-- **username** (String)
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `username` (String)
 
 ### Read-Only
 
-- **email** (String)
-- **first_name** (String)
-- **last_name** (String)
-
-
+- `email` (String)
+- `first_name` (String)
+- `id` (String) The ID of this resource.
+- `last_name` (String)

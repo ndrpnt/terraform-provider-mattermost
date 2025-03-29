@@ -17,17 +17,15 @@ Sample resource in the Terraform provider Team.
 
 ### Required
 
-- **display_name** (String) Display name of the team.
-- **name** (String) Name of the team.
+- `display_name` (String) Display name of the team.
+- `name` (String) Name of the team.
 
 ### Optional
 
-- **description** (String) Description of the team.
-- **id** (String) The ID of this resource.
-- **type** (String) Type of the team.
+- `description` (String) Description of the team.
+- `type` (String) Type of the team.
 
 ### Read-Only
 
-- **email** (String) Administrator Email (anyone with this email is automatically a team admin).
-
-
+- `email` (String) Administrator Email (anyone with this email is automatically a team admin).
+- `id` (String) The ID of this resource.

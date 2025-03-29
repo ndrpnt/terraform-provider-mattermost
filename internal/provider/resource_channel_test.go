@@ -24,14 +24,14 @@ func TestAccResourceChannel(t *testing.T) {
 
 const testAccResourceChannel = `
 resource "mattermost_team" "test" {
-	name = "sheh"
-	display_name = "An sheh bis"
+  name         = "sheh"
+  display_name = "An sheh bis"
 }
 
 resource "mattermost_channel" "foo" {
-	description = "bar description"
-	display_name = "bar display"
-  	name = "bar"
-	team_id = mattermost_team.test.id
+  description  = "bar description"
+  display_name = "bar display"
+  name         = "bar"
+  team_id      = mattermost_team.test.id
 }
 `

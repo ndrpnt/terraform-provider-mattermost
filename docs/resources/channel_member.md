@@ -17,11 +17,9 @@ Sample resource in the Terraform provider ChannelMember.
 
 ### Required
 
-- **channel_id** (String) The id of the channel
-- **user_id** (String) The id of the user to add
+- `channel_id` (String) The id of the channel
+- `user_id` (String) The id of the user to add
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
-
-
+- `id` (String) The ID of this resource.

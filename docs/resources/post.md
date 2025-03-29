@@ -17,11 +17,9 @@ Manage a Mattermost post.
 
 ### Required
 
-- **channel_id** (String) Id of the channel to send the message in.
-- **message** (String) Content of the message.
+- `channel_id` (String) Id of the channel to send the message in.
+- `message` (String) Content of the message.
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
-
-
+- `id` (String) The ID of this resource.

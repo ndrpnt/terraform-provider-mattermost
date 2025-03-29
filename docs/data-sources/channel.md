@@ -17,19 +17,14 @@ description: |-
 
 ### Required
 
-- **name** (String)
-- **team_id** (String)
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `name` (String)
+- `team_id` (String)
 
 ### Read-Only
 
-- **creator_id** (String)
-- **display_name** (String)
-- **header** (String)
-- **purpose** (String)
-- **type** (String)
-
-
+- `creator_id` (String)
+- `display_name` (String)
+- `header` (String)
+- `id` (String) The ID of this resource.
+- `purpose` (String)
+- `type` (String)

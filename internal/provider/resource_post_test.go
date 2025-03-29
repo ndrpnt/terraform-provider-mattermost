@@ -27,23 +27,23 @@ data "mattermost_user" "example_user" {
 }
 
 resource "mattermost_team" "example_team" {
-	name = "myexampleteam"
-	display_name = "My example team"
+  name         = "myexampleteam"
+  display_name = "My example team"
 }
 
 resource "mattermost_team_member" "example_team_member" {
-	team_id = mattermost_team.example_team.id
-	user_id = data.mattermost_user.example_user.id
+  team_id = mattermost_team.example_team.id
+  user_id = data.mattermost_user.example_user.id
 }
 
 resource "mattermost_channel" "example_channel" {
-	display_name = "My example channel"
-	name = "myexamplechannel"
-	team_id = mattermost_team.example_team.id
+  display_name = "My example channel"
+  name         = "myexamplechannel"
+  team_id      = mattermost_team.example_team.id
 }
 
 resource "mattermost_post" "example_post" {
-	channel_id = mattermost_channel.example_channel.id
-	message = "Example post message"
+  channel_id = mattermost_channel.example_channel.id
+  message    = "Example post message"
 }
 `

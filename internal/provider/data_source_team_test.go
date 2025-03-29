@@ -23,9 +23,9 @@ func TestAccDataSourceTeam(t *testing.T) {
 
 const testAccDataSourceTeam = `
 resource "mattermost_team" "example_team" {
-	name = "examplename"
-	display_name = "Example display name"
-	description = "Example description"
+  name         = "examplename"
+  display_name = "Example display name"
+  description  = "Example description"
 }
 
 data "mattermost_team" "sut" {

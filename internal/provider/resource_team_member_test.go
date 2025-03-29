@@ -20,8 +20,8 @@ func TestAccResourceTeamMember(t *testing.T) {
 
 const testAccResourceTeamMember = `
 resource "mattermost_team" "test" {
-	name = "sheh"
-	display_name = "An sheh bis"
+  name         = "sheh"
+  display_name = "An sheh bis"
 }
 
 data "mattermost_user" "test" {
@@ -29,7 +29,7 @@ data "mattermost_user" "test" {
 }
 
 resource "mattermost_team_member" "foo" {
-	team_id = mattermost_team.test.id
-	user_id = data.mattermost_user.test.id
+  team_id = mattermost_team.test.id
+  user_id = data.mattermost_user.test.id
 }
 `
