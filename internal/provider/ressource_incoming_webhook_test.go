@@ -20,18 +20,18 @@ func TestAccResourceIncommingWebhook(t *testing.T) {
 
 const testAccResourceIncomingWebhook = `
 resource "mattermost_team" "test" {
-	name = "sheh"
-	display_name = "An sheh bis"
+  name         = "sheh"
+  display_name = "An sheh bis"
 }
 resource "mattermost_channel" "foo" {
-	description = "foo description"
-	display_name = "foo display"
-    name = "foo"
-	team_id = mattermost_team.test.id
+  description  = "foo description"
+  display_name = "foo display"
+  name         = "foo"
+  team_id      = mattermost_team.test.id
 }
 resource "mattermost_incoming_webhook" "test" {
-    name = "test_webhook"
-    description = "A test incoming webhook"
-    channel_id = mattermost_channel.foo.id
+  name        = "test_webhook"
+  description = "A test incoming webhook"
+  channel_id  = mattermost_channel.foo.id
 }
 `

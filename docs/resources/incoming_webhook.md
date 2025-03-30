@@ -17,14 +17,15 @@ Sample resource in the Terraform provider IncomingWebhook.
 
 ### Required
 
-- **channel_id** (String) Id of the channel that receives the webhook payloads
-- **name** (String) Name of the webhook
+- `channel_id` (String) Id of the channel that receives the webhook payloads
+- `name` (String) Name of the webhook
 
 ### Optional
 
-- **description** (String) Description of the webhook.
-- **icon_url** (String) The profile picture this incoming webhook will use when posting
-- **id** (String) The ID of this resource.
-- **username** (String) The display name for this incoming webhook
+- `description` (String) Description of the webhook.
+- `icon_url` (String) The profile picture this incoming webhook will use when posting
+- `username` (String) The display name for this incoming webhook
 
+### Read-Only
 
+- `id` (String) The ID of this resource.
