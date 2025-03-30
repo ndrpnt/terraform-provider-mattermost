@@ -17,11 +17,9 @@ Sample resource in the Terraform provider TeamMember.
 
 ### Required
 
-- **team_id** (String) The id of the team
-- **user_id** (String) The id of the user to add
+- `team_id` (String) The id of the team
+- `user_id` (String) The id of the user to add
 
-### Optional
+### Read-Only
 
-- **id** (String) The ID of this resource.
-
-
+- `id` (String) The ID of this resource.

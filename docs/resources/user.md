@@ -17,19 +17,20 @@ Manage a user.
 
 ### Required
 
-- **email** (String)
-- **username** (String)
+- `email` (String)
+- `username` (String)
 
 ### Optional
 
-- **auth_data** (String) Service-specific authentication data, such as email address.
-- **auth_service** (String) The authentication service, one of "email", "gitlab", "ldap", "saml", "office365", and "google".
-- **first_name** (String)
-- **id** (String) The ID of this resource.
-- **last_name** (String)
-- **locale** (String)
-- **nickname** (String)
-- **password** (String, Sensitive) The password used for email authentication.
-- **props** (Map of String)
+- `auth_data` (String) Service-specific authentication data, such as email address.
+- `auth_service` (String) The authentication service, one of "email", "gitlab", "ldap", "saml", "office365", and "google".
+- `first_name` (String)
+- `last_name` (String)
+- `locale` (String)
+- `nickname` (String)
+- `password` (String, Sensitive) The password used for email authentication.
+- `props` (Map of String)
 
+### Read-Only
 
+- `id` (String) The ID of this resource.

@@ -17,15 +17,16 @@ Sample resource in the Terraform provider Channel.
 
 ### Required
 
-- **display_name** (String) Display name of the channel.
-- **name** (String) Name of the channel.
-- **team_id** (String) Id of the team of the channel.
+- `display_name` (String) Display name of the channel.
+- `name` (String) Name of the channel.
+- `team_id` (String) Id of the team of the channel.
 
 ### Optional
 
-- **description** (String) Description of the channel.
-- **header** (String) Header of the channel.
-- **id** (String) The ID of this resource.
-- **type** (String) Type of the channel.
+- `description` (String) Description of the channel.
+- `header` (String) Header of the channel.
+- `type` (String) Type of the channel.
 
+### Read-Only
 
+- `id` (String) The ID of this resource.

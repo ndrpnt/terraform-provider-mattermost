@@ -24,8 +24,8 @@ func TestAccResourceTeam(t *testing.T) {
 
 const testAccResourceTeam = `
 resource "mattermost_team" "foo" {
-	description = "bar description"
-	display_name = "bar display"
-  	name = "bar"
+  description  = "bar description"
+  display_name = "bar display"
+  name         = "bar"
 }
 `

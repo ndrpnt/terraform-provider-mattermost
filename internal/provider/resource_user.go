@@ -10,10 +10,10 @@ import (
 )
 
 // Note that:
-// 1) `auth_data` and `password` cannot be read. Thus, Terraform's refresh and
-//    drift detection are not working as expected for these fields.
-// 2) `notify_props` can only be read for the authenticated user. This provider
-//    doesn't manage them at all, as there is little benefit to it anyway.
+//  1. `auth_data` and `password` cannot be read. Thus, Terraform's refresh and
+//     drift detection are not working as expected for these fields.
+//  2. `notify_props` can only be read for the authenticated user. This provider
+//     doesn't manage them at all, as there is little benefit to it anyway.
 func resourceUser() *schema.Resource {
 	return &schema.Resource{
 		Description: "Manage a user.",

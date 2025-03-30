@@ -17,15 +17,10 @@ description: |-
 
 ### Required
 
-- **name** (String)
-
-### Optional
-
-- **id** (String) The ID of this resource.
+- `name` (String)
 
 ### Read-Only
 
-- **description** (String)
-- **display_name** (String)
-
-
+- `description` (String)
+- `display_name` (String)
+- `id` (String) The ID of this resource.
