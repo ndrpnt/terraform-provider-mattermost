@@ -6,11 +6,11 @@ updates:
       interval: monthly
     groups:
       all:
-        patterns: [*]
+        patterns: ["*"]
   - package-ecosystem: gomod
     directory: "/"
     schedule:
       interval: monthly
     groups:
       all:
-        patterns: [*]
+        patterns: ["*"]
