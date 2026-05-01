@@ -90,7 +90,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 
 		token, ok := d.GetOk("token")
 		if ok {
-			c.SetOAuthToken(token.(string))
+			c.SetToken(token.(string))
 		} else {
 			loginId := d.Get("login_id").(string)
 			password := d.Get("password").(string)
