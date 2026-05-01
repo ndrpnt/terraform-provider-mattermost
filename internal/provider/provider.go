@@ -71,6 +71,7 @@ func New(version string) func() *schema.Provider {
 				"mattermost_post":             resourcePost(),
 				"mattermost_user":             resourceUser(),
 				"mattermost_incoming_webhook": ressourceIncomingWebhook(),
+				"mattermost_slash_command":    resourceSlashCommand(),
 			},
 		}
 
