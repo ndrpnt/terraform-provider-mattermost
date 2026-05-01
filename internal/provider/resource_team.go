@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,7 +56,7 @@ func resourceTeam() *schema.Resource {
 func resourceTeamCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	team, resp, err := c.CreateTeam(&model.Team{
+	team, resp, err := c.CreateTeam(ctx, &model.Team{
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -79,7 +79,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	team, resp, err := c.GetTeam(id, "")
+	team, resp, err := c.GetTeam(ctx, id, "")
 	if err != nil {
 		return diag.Errorf("cannot get team by name: %v", err)
 	}
@@ -106,7 +106,7 @@ func resourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interfac
 func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	_, resp, err := c.UpdateTeam(&model.Team{
+	_, resp, err := c.UpdateTeam(ctx, &model.Team{
 		Id:          d.Id(),
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
@@ -127,7 +127,7 @@ func resourceTeamUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 func resourceTeamDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.PermanentDeleteTeam(d.Id())
+	resp, err := c.PermanentDeleteTeam(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete team: %v", err)
 	}

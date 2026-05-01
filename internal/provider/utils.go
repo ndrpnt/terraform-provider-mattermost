@@ -3,7 +3,7 @@ package provider
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func fmtErr(resp *model.Response, err error) error {

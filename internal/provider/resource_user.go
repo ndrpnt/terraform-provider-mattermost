@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 // Note that:
@@ -103,7 +103,7 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		user.Props = expandStringMap(props.(map[string]interface{}))
 	}
 
-	user, resp, err := c.CreateUser(user)
+	user, resp, err := c.CreateUser(ctx, user)
 	if err != nil {
 		return diag.Errorf("cannot create user: %v", fmtErr(resp, err))
 	}
@@ -113,10 +113,10 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 	return resourceUserRead(ctx, d, meta)
 }
 
-func resourceUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	user, resp, err := c.GetUser(d.Id(), "")
+	user, resp, err := c.GetUser(ctx, d.Id(), "")
 	if resp.StatusCode == 404 {
 		d.SetId("")
 		return nil
@@ -142,7 +142,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 
 	if d.HasChange("password") {
 		oldPassword, newPassword := d.GetChange("password")
-		resp, err := c.UpdatePassword(d.Id(), oldPassword.(string), newPassword.(string))
+		resp, err := c.UpdatePassword(ctx, d.Id(), oldPassword.(string), newPassword.(string))
 		if err != nil {
 			return diag.Errorf("cannot update password: %v", fmtErr(resp, err))
 		}
@@ -162,7 +162,7 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 		user.Props = expandStringMap(props.(map[string]interface{}))
 	}
 
-	user, resp, err := c.UpdateUser(user)
+	user, resp, err := c.UpdateUser(ctx, user)
 	if err != nil {
 		return diag.Errorf("cannot update user: %v", fmtErr(resp, err))
 	}
@@ -170,10 +170,10 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 	return resourceUserRead(ctx, d, meta)
 }
 
-func resourceUserDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.PermanentDeleteUser(d.Id())
+	resp, err := c.PermanentDeleteUser(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete user: %v", fmtErr(resp, err))
 	}

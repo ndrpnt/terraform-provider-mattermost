@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func dataSourceTeam() *schema.Resource {
@@ -29,11 +29,11 @@ func dataSourceTeam() *schema.Resource {
 	}
 }
 
-func dataSourceTeamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceTeamRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 	name := d.Get("name").(string)
 
-	team, _, err := c.GetTeamByName(name, "")
+	team, _, err := c.GetTeamByName(ctx, name, "")
 	if err != nil {
 		return diag.Errorf("cannot get team: %v", err)
 	}

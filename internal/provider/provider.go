@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func init() {
@@ -94,7 +94,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		} else {
 			loginId := d.Get("login_id").(string)
 			password := d.Get("password").(string)
-			_, _, err := c.Login(loginId, password)
+			_, _, err := c.Login(ctx, loginId, password)
 			if err != nil {
 				return nil, diag.Errorf("cannot login with given login_id and password: %v", err)
 			}

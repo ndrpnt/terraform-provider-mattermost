@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func dataSourceUser() *schema.Resource {
@@ -33,11 +33,11 @@ func dataSourceUser() *schema.Resource {
 	}
 }
 
-func dataSourceUserRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 	name := d.Get("username").(string)
 
-	user, _, err := c.GetUserByUsername(name, "")
+	user, _, err := c.GetUserByUsername(ctx, name, "")
 	if err != nil {
 		return diag.Errorf("cannot get user by name: %v", err)
 	}

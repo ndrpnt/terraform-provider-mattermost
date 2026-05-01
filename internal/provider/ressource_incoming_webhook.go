@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -53,7 +53,7 @@ func ressourceIncomingWebhook() *schema.Resource {
 func ressourceIncomingWebhookCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	webhook, resp, err := c.CreateIncomingWebhook(&model.IncomingWebhook{
+	webhook, resp, err := c.CreateIncomingWebhook(ctx, &model.IncomingWebhook{
 		ChannelId:   d.Get("channel_id").(string),
 		DisplayName: d.Get("name").(string),
 		Description: d.Get("description").(string),
@@ -77,7 +77,7 @@ func ressourceIncomingWebhookRead(ctx context.Context, d *schema.ResourceData, m
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	webhook, resp, err := c.GetIncomingWebhook(id, "")
+	webhook, resp, err := c.GetIncomingWebhook(ctx, id, "")
 	if err != nil {
 		return diag.Errorf("cannot get webhook by id: %v", err)
 	}
@@ -104,7 +104,7 @@ func ressourceIncomingWebhookRead(ctx context.Context, d *schema.ResourceData, m
 func ressourceIncomingWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	_, resp, err := c.UpdateIncomingWebhook(&model.IncomingWebhook{
+	_, resp, err := c.UpdateIncomingWebhook(ctx, &model.IncomingWebhook{
 		Id:          d.Id(),
 		DisplayName: d.Get("name").(string),
 		ChannelId:   d.Get("channel_id").(string),
@@ -126,7 +126,7 @@ func ressourceIncomingWebhookUpdate(ctx context.Context, d *schema.ResourceData,
 func ressourceIncomingWebhookDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.DeleteIncomingWebhook(d.Id())
+	resp, err := c.DeleteIncomingWebhook(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete webhook: %v", err)
 	}

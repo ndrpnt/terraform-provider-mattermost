@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -63,7 +63,7 @@ func resourceChannel() *schema.Resource {
 func resourceChannelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	channel, resp, err := c.CreateChannel(&model.Channel{
+	channel, resp, err := c.CreateChannel(ctx, &model.Channel{
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
 		Type:        model.ChannelType(d.Get("type").(string)),
@@ -87,7 +87,7 @@ func resourceChannelRead(ctx context.Context, d *schema.ResourceData, meta inter
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	channel, resp, err := c.GetChannel(id, "")
+	channel, resp, err := c.GetChannel(ctx, id)
 	if err != nil {
 		return diag.Errorf("cannot get channel by name: %v", err)
 	}
@@ -114,7 +114,7 @@ func resourceChannelRead(ctx context.Context, d *schema.ResourceData, meta inter
 func resourceChannelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	_, resp, err := c.UpdateChannel(&model.Channel{
+	_, resp, err := c.UpdateChannel(ctx, &model.Channel{
 		Id:          d.Id(),
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
@@ -136,7 +136,7 @@ func resourceChannelUpdate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceChannelDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.PermanentDeleteChannel(d.Id())
+	resp, err := c.PermanentDeleteChannel(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete channel: %v", err)
 	}

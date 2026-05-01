@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func resourcePost() *schema.Resource {
@@ -37,7 +37,7 @@ func resourcePost() *schema.Resource {
 func resourcePostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	post, resp, err := c.CreatePost(&model.Post{
+	post, resp, err := c.CreatePost(ctx, &model.Post{
 		ChannelId: d.Get("channel_id").(string),
 		Message:   d.Get("message").(string),
 	})
@@ -57,7 +57,7 @@ func resourcePostCreate(ctx context.Context, d *schema.ResourceData, meta interf
 func resourcePostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	post, resp, err := c.GetPost(d.Id(), "")
+	post, resp, err := c.GetPost(ctx, d.Id(), "")
 	if err != nil {
 		return diag.Errorf("cannot get post by ID: %v", err)
 	}
@@ -80,7 +80,7 @@ func resourcePostRead(ctx context.Context, d *schema.ResourceData, meta interfac
 func resourcePostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	_, resp, err := c.UpdatePost(d.Id(), &model.Post{
+	_, resp, err := c.UpdatePost(ctx, d.Id(), &model.Post{
 		Id:        d.Id(),
 		Message:   d.Get("message").(string),
 		ChannelId: d.Get("channel_id").(string),
@@ -99,7 +99,7 @@ func resourcePostUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 func resourcePostDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.DeletePost(d.Id())
+	resp, err := c.DeletePost(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete post: %v", err)
 	}
