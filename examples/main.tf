@@ -31,7 +31,7 @@ resource "mattermost_user" "complex" {
     customStatus = jsonencode({
       duration   = "this_week"
       emoji      = "palm_tree"
-      expires_at = "2022-01-01T22:59:59.999Z"
+      expires_at = "2030-01-01T22:59:59.999Z"
       text       = "On a vacation"
     })
   }
