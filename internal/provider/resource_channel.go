@@ -47,14 +47,12 @@ func resourceChannel() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			// FIXME(jual): this should only be settable to Open or private.
-			//  Group/direct channels are created via a specific endpoint
 			"type": {
-				Description:  "Type of the channel.",
+				Description:  "Type of the channel. Can be public (`O`) or private (`P`).",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      model.ChannelTypeOpen,
-				ValidateFunc: validation.StringInSlice([]string{string(model.ChannelTypeDirect), string(model.ChannelTypeGroup), string(model.ChannelTypeOpen), string(model.ChannelTypePrivate)}, false),
+				ValidateFunc: validation.StringInSlice([]string{string(model.ChannelTypeOpen), string(model.ChannelTypePrivate)}, false),
 			},
 		},
 	}
