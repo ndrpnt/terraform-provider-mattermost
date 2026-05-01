@@ -64,16 +64,11 @@ func resourceTeamMemberRead(ctx context.Context, d *schema.ResourceData, meta in
 	userId := parts[1]
 	_, resp, err := c.GetTeamMember(ctx, teamId, userId, "")
 	if err != nil {
-		return diag.Errorf("cannot get team_member: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get team_member: %v", fmtErr(resp, err))
 	}
 
 	d.Set("team_id", teamId)

@@ -59,16 +59,11 @@ func resourcePostRead(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	post, resp, err := c.GetPost(ctx, d.Id(), "")
 	if err != nil {
-		return diag.Errorf("cannot get post by ID: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get post by ID: %v", fmtErr(resp, err))
 	}
 
 	d.Set("message", post.Message)

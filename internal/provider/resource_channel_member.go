@@ -64,16 +64,11 @@ func resourceChannelMemberRead(ctx context.Context, d *schema.ResourceData, meta
 
 	_, resp, err := c.GetChannelMember(ctx, channelId, userId, "")
 	if err != nil {
-		return diag.Errorf("cannot get channel_member: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get channel_member: %v", fmtErr(resp, err))
 	}
 
 	d.Set("channel_id", channelId)

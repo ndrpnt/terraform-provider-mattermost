@@ -117,11 +117,11 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	c := meta.(*model.Client4)
 
 	user, resp, err := c.GetUser(ctx, d.Id(), "")
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
 	if err != nil {
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
 		return diag.Errorf("cannot get user: %v", fmtErr(resp, err))
 	}
 

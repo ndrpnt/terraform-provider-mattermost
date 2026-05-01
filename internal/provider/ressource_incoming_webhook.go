@@ -79,16 +79,11 @@ func ressourceIncomingWebhookRead(ctx context.Context, d *schema.ResourceData, m
 
 	webhook, resp, err := c.GetIncomingWebhook(ctx, id, "")
 	if err != nil {
-		return diag.Errorf("cannot get webhook by id: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get webhook by id: %v", fmtErr(resp, err))
 	}
 
 	d.SetId(webhook.Id)
