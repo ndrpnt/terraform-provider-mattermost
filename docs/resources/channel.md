@@ -25,7 +25,7 @@ Sample resource in the Terraform provider Channel.
 
 - `description` (String) Description of the channel.
 - `header` (String) Header of the channel.
-- `type` (String) Type of the channel.
+- `type` (String) Type of the channel. Can be public (`O`) or private (`P`).
 
 ### Read-Only
 
