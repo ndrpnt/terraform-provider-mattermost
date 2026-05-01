@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 func dataSourceChannel() *schema.Resource {
@@ -45,12 +45,12 @@ func dataSourceChannel() *schema.Resource {
 	}
 }
 
-func dataSourceChannelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceChannelRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 	name := d.Get("name").(string)
 	teamId := d.Get("team_id").(string)
 
-	channel, resp, err := c.GetChannelByName(name, teamId, "")
+	channel, resp, err := c.GetChannelByName(ctx, name, teamId, "")
 	if err != nil {
 		return diag.Errorf("cannot get channel by name: %v", fmtErr(resp, err))
 	}

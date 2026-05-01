@@ -14,3 +14,10 @@ updates:
     groups:
       all:
         patterns: ["*"]
+  - package-ecosystem: docker-compose
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      all:
+        patterns: ["*"]

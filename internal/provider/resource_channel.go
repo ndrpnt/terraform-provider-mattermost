@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -47,14 +47,12 @@ func resourceChannel() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 			},
-			// FIXME(jual): this should only be settable to Open or private.
-			//  Group/direct channels are created via a specific endpoint
 			"type": {
-				Description:  "Type of the channel.",
+				Description:  "Type of the channel. Can be public (`O`) or private (`P`).",
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      model.ChannelTypeOpen,
-				ValidateFunc: validation.StringInSlice([]string{string(model.ChannelTypeDirect), string(model.ChannelTypeGroup), string(model.ChannelTypeOpen), string(model.ChannelTypePrivate)}, false),
+				ValidateFunc: validation.StringInSlice([]string{string(model.ChannelTypeOpen), string(model.ChannelTypePrivate)}, false),
 			},
 		},
 	}
@@ -63,7 +61,7 @@ func resourceChannel() *schema.Resource {
 func resourceChannelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	channel, resp, err := c.CreateChannel(&model.Channel{
+	channel, resp, err := c.CreateChannel(ctx, &model.Channel{
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
 		Type:        model.ChannelType(d.Get("type").(string)),
@@ -87,18 +85,13 @@ func resourceChannelRead(ctx context.Context, d *schema.ResourceData, meta inter
 	c := meta.(*model.Client4)
 	id := d.Id()
 
-	channel, resp, err := c.GetChannel(id, "")
+	channel, resp, err := c.GetChannel(ctx, id)
 	if err != nil {
-		return diag.Errorf("cannot get channel by name: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get channel by name: %v", fmtErr(resp, err))
 	}
 
 	d.SetId(channel.Id)
@@ -114,7 +107,7 @@ func resourceChannelRead(ctx context.Context, d *schema.ResourceData, meta inter
 func resourceChannelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	_, resp, err := c.UpdateChannel(&model.Channel{
+	_, resp, err := c.UpdateChannel(ctx, &model.Channel{
 		Id:          d.Id(),
 		DisplayName: d.Get("display_name").(string),
 		Name:        d.Get("name").(string),
@@ -136,7 +129,7 @@ func resourceChannelUpdate(ctx context.Context, d *schema.ResourceData, meta int
 func resourceChannelDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*model.Client4)
 
-	resp, err := c.PermanentDeleteChannel(d.Id())
+	resp, err := c.PermanentDeleteChannel(ctx, d.Id())
 	if err != nil {
 		return diag.Errorf("cannot delete channel: %v", err)
 	}

@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-provider-mattermost/internal/testutils"
+	"github.com/ndrpnt/terraform-provider-mattermost/internal/testutils"
 )
 
 func TestAccResourceUser(t *testing.T) {

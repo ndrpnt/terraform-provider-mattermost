@@ -8,7 +8,7 @@ import (
 	"flag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/hashicorp/terraform-provider-mattermost/internal/provider"
+	"github.com/ndrpnt/terraform-provider-mattermost/internal/provider"
 )
 
 var (

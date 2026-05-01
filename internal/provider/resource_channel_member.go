@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -42,7 +42,7 @@ func resourceChannelMemberCreate(ctx context.Context, d *schema.ResourceData, me
 	channelId := d.Get("channel_id").(string)
 	userId := d.Get("user_id").(string)
 
-	_, resp, err := c.AddChannelMember(channelId, userId)
+	_, resp, err := c.AddChannelMember(ctx, channelId, userId)
 	if err != nil {
 		return diag.Errorf("cannot create channel_member: %v", err)
 	}
@@ -62,18 +62,13 @@ func resourceChannelMemberRead(ctx context.Context, d *schema.ResourceData, meta
 	channelId := parts[0]
 	userId := parts[1]
 
-	_, resp, err := c.GetChannelMember(channelId, userId, "")
+	_, resp, err := c.GetChannelMember(ctx, channelId, userId, "")
 	if err != nil {
-		return diag.Errorf("cannot get channel_member: %v", err)
-	}
-
-	if resp.StatusCode == 404 {
-		d.SetId("")
-		return nil
-	}
-
-	if resp.StatusCode != 200 {
-		return diag.Errorf("invalid status returned %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode == 404 {
+			d.SetId("")
+			return nil
+		}
+		return diag.Errorf("cannot get channel_member: %v", fmtErr(resp, err))
 	}
 
 	d.Set("channel_id", channelId)
@@ -87,7 +82,7 @@ func resourceChannelMemberDelete(ctx context.Context, d *schema.ResourceData, me
 	channelId := d.Get("channel_id").(string)
 	userId := d.Get("user_id").(string)
 
-	resp, err := c.RemoveUserFromChannel(channelId, userId)
+	resp, err := c.RemoveUserFromChannel(ctx, channelId, userId)
 	if err != nil {
 		return diag.Errorf("cannot delete channel_member: %v", err)
 	}

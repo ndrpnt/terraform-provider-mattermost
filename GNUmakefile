@@ -10,6 +10,7 @@ help: ## Show this help
 .PHONY: up
 up: ## Spin up local testing infrastructure
 	$(DOCKER_COMPOSE_BIN) up --wait
+	until $(DOCKER_COMPOSE_BIN) exec --no-TTY mattermost mmctl --local system status; do sleep 1; done
 	$(DOCKER_COMPOSE_BIN) exec mattermost mmctl --local user create \
 		--email admin@example.com \
 		--username admin \
