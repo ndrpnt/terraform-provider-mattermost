@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: mattermost
       POSTGRES_PASSWORD: mattermost
   mattermost:
-    image: mattermost/mattermost-team-edition:11.6.1
+    image: mattermost/mattermost-team-edition:11.7.2
     platform: linux/amd64
     environment:
       MM_SERVICESETTINGS_SITEURL: http://localhost:8065
