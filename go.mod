@@ -5,7 +5,7 @@ go 1.26.3
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.25.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.40.1
-	github.com/katbyte/terrafmt v0.5.6
+	github.com/katbyte/terrafmt v0.5.7
 	github.com/mattermost/mattermost/server/public v0.4.3
 )
 
